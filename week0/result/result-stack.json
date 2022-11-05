@@ -1,0 +1,183 @@
+{
+ "Parameters": {
+  "InstanceType": {
+   "Type": "String",
+   "Default": "t2.micro",
+   "AllowedValues": [
+    "t2.micro",
+    "t3.micro",
+    "t4g.micro"
+   ],
+   "Description": "Select instance type to spawn"
+  },
+  "AMI": {
+   "Type": "String",
+   "Default": "ami-09d3b3274b6c5d4aa",
+   "Description": "Select AMI type for new instance"
+  },
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Resources": {
+  "sg29196201": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "SimpleEC2Stack/sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": "vpc-606be01d"
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleEC2Stack/sg/Resource"
+   }
+  },
+  "instanceInstanceRoleF436EE92": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleEC2Stack/instance"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleEC2Stack/instance/InstanceRole/Resource"
+   }
+  },
+  "instanceInstanceProfile931F14E3": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "instanceInstanceRoleF436EE92"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleEC2Stack/instance/InstanceProfile"
+   }
+  },
+  "instanceB7CCE687": {
+   "Type": "AWS::EC2::Instance",
+   "Properties": {
+    "AvailabilityZone": "us-east-1a",
+    "BlockDeviceMappings": [
+     {
+      "DeviceName": "/dev/sda1",
+      "Ebs": {
+       "VolumeSize": 50
+      }
+     }
+    ],
+    "IamInstanceProfile": {
+     "Ref": "instanceInstanceProfile931F14E3"
+    },
+    "ImageId": {
+     "Ref": "AMI"
+    },
+    "InstanceType": {
+     "Ref": "InstanceType"
+    },
+    "SecurityGroupIds": [
+     {
+      "Fn::GetAtt": [
+       "sg29196201",
+       "GroupId"
+      ]
+     }
+    ],
+    "SubnetId": "subnet-883f41ee",
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "SimpleEC2Stack/instance"
+     }
+    ],
+    "UserData": {
+     "Fn::Base64": "#!/bin/bash"
+    }
+   },
+   "DependsOn": [
+    "instanceInstanceRoleF436EE92"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SimpleEC2Stack/instance/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WNQQ6CMBBFz8K+jIgxHsCF0Y0ED2DGOiQj0JJpqzGkd7egLFz9n/ffZErYFlBk+HK5vrd5xzcYLx51q/aNqVCwJ0+ianI2iCaVxOtIukwW6SDs3wexYZjsf3A0zqNJF2lZelSMPYy17Wa85DJXYhvuKMYJnoMfgp+13++oTvjE1XoHBWyyh2POJRjPPUH9zQ9lIcYnzQAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "SimpleEC2Stack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "InstancePrivateIPAddress": {
+   "Value": {
+    "Fn::GetAtt": [
+     "instanceB7CCE687",
+     "PrivateIp"
+    ]
+   }
+  },
+  "InstancePublicIPAddress": {
+   "Value": {
+    "Fn::GetAtt": [
+     "instanceB7CCE687",
+     "PublicIp"
+    ]
+   }
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
