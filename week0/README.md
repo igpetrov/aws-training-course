@@ -11,4 +11,4 @@
 
 # Result
 
-- See #1
+- See https://github.com/igpetrov/aws-training-course/issues/1
