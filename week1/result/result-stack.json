@@ -1,0 +1,195 @@
+{
+ "Parameters": {
+  "InstanceType": {
+   "Type": "String",
+   "Default": "t2.micro",
+   "AllowedValues": [
+    "t1.micro",
+    "t2.micro",
+    "t3.micro"
+   ],
+   "Description": "Select instance type to spawn"
+  },
+  "MinAmount": {
+   "Type": "Number",
+   "Default": 2,
+   "Description": "Select min amount of of instances"
+  },
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Resources": {
+  "sg29196201": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Week1Stack/sg",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "from 0.0.0.0/0:22",
+      "FromPort": 22,
+      "IpProtocol": "tcp",
+      "ToPort": 22
+     }
+    ],
+    "VpcId": "vpc-606be01d"
+   },
+   "Metadata": {
+    "aws:cdk:path": "Week1Stack/sg/Resource"
+   }
+  },
+  "ASGInstanceRoleE263A41B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "Week1Stack/ASG"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Week1Stack/ASG/InstanceRole/Resource"
+   }
+  },
+  "ASGInstanceProfile0A2834D7": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "ASGInstanceRoleE263A41B"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "Week1Stack/ASG/InstanceProfile"
+   }
+  },
+  "ASGLaunchConfigC00AF12B": {
+   "Type": "AWS::AutoScaling::LaunchConfiguration",
+   "Properties": {
+    "ImageId": "ami-081dc0707789c2daf",
+    "InstanceType": {
+     "Ref": "InstanceType"
+    },
+    "IamInstanceProfile": {
+     "Ref": "ASGInstanceProfile0A2834D7"
+    },
+    "KeyName": "mydemokey",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "sg29196201",
+       "GroupId"
+      ]
+     }
+    ],
+    "UserData": {
+     "Fn::Base64": "#!/bin/bash\nsudo yum install -y java-11-amazon-corretto-headless"
+    }
+   },
+   "DependsOn": [
+    "ASGInstanceRoleE263A41B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "Week1Stack/ASG/LaunchConfig"
+   }
+  },
+  "ASG46ED3070": {
+   "Type": "AWS::AutoScaling::AutoScalingGroup",
+   "Properties": {
+    "MaxSize": {
+     "Ref": "MinAmount"
+    },
+    "MinSize": "1",
+    "DesiredCapacity": {
+     "Ref": "MinAmount"
+    },
+    "LaunchConfigurationName": {
+     "Ref": "ASGLaunchConfigC00AF12B"
+    },
+    "Tags": [
+     {
+      "Key": "Name",
+      "PropagateAtLaunch": true,
+      "Value": "Week1Stack/ASG"
+     }
+    ],
+    "VPCZoneIdentifier": [
+     "subnet-883f41ee",
+     "subnet-928fcab3",
+     "subnet-6f7d7322",
+     "subnet-5e2c5701",
+     "subnet-609d1f51",
+     "subnet-7e615170"
+    ]
+   },
+   "UpdatePolicy": {
+    "AutoScalingScheduledAction": {
+     "IgnoreUnmodifiedGroupSizeProperties": true
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "Week1Stack/ASG/ASG"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12Oyw6CMBREv4V9qYgxrg0Lo3FB4APMtV7wSmlNHxrT9N8FURNdTWbOWUzOlxnPErjbVJy6VNKRh9qB6FjRqBIM9OjQsAqt9kYgG8RDQJEPFgpvyD02RvvraP8MkYF32gqQpFoe1kOpp/L19+CVOBdaNdR6A460Gud/NTKCnodKSxzxJ7fKOlACS6MbkhjjC75vRraDG8zmK57xRXKxRKnxylGPvJryCSXB0w/4AAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "Week1Stack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
