@@ -11,4 +11,5 @@
 
 # Result
 
-- See https://github.com/igpetrov/aws-training-course/issues/1
+- See stack template: https://github.com/igpetrov/aws-training-course/blob/main/week0/result/result-stack.json
+- See ticket: https://github.com/igpetrov/aws-training-course/issues/1
