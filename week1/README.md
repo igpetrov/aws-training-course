@@ -9,5 +9,6 @@
 
 # Result
 
+- See results: https://github.com/igpetrov/aws-training-course/tree/main/week1/result
 - See: https://github.com/igpetrov/aws-training-course/issues/2
 
