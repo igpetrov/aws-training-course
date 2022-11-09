@@ -1,1 +1,3 @@
 # aws-training-course
+
+Slack?
